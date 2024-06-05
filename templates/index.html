@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CCTV Thermal HVAC Monitoring</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Monitoring CCTV Thermal HVAC</h1>
+    <p id="datetime"></p>
+  </header>
+
+  <script>
+    function updateDateTime() {
+      const now = new Date();
+      const formattedDateTime = now.toLocaleString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
+      document.getElementById('datetime').textContent = formattedDateTime;
+    }
+    setInterval(updateDateTime, 1000);
+  </script>
+
+  <main>
+    <div class="video-container">
+      <img src="{{ url_for('video_feed') }}" width="800">
+    </div>
+
+    <div class="temperature-container">
+      <section class="air-conditioner">
+        <h2>Air Conditioner Temperature</h2>
+        <p>18°c</p>
+      </section>
+      <section class="average-temperature">
+        <h2>CCTV Average Temperature</h2>
+        <p>19°c</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
