@@ -34,35 +34,37 @@ body {
     margin-bottom: 10px;
   }
 
-
-  .air-conditioner, .Average-Temperature  p {
+  .users p {
     font-size: 16px;
     margin-bottom: 5px;
   }
 
-  .temperature-container {
-    display: flex;
-    justify-content: space-between;
+  .air-conditioner p {
+    font-size: 16px;
+    margin-bottom: 5px;
   }
 
-  .temperature-container section {
-    flex: 1;
-    margin: 10px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    text-align: center;
-  }
-
-  .temperature-container h2 {
-    margin-top: 0;
+  .Average-Temperature p {
+    font-size: 16px;
+    margin-bottom: 5px;
   }
 
 *{
     padding: 0;
     margin: 0;
 }
+
+
+  .history table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .history th,
+  .history td {
+    padding: 8px;
+    border: 1px solid #ddd;
+  }
 
   .video-container {
     text-align: center;

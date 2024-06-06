@@ -56,7 +56,7 @@ def detect_and_label_temperature(frame):
     return frame, temperature_values
 
 def generate_frames():
-    cap = cv2.VideoCapture('/Users/devaraya/Documents/thermalcctv2web/src/ThermalExperiment.mp4')
+    cap = cv2.VideoCapture('C:\\xampp\htdocs\HVAC-Thermal-CCTV-to-web\src\ThermalExperiment.mp4')
     all_temperatures = []
 
     while True:
