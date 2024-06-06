@@ -4,7 +4,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CCTV Thermal HVAC Monitoring</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Simulated data for static HTML
+      const data = {
+        air_conditioner_temp: 24,
+        cctv_avg_temp: 35,
+        tcp_status: true,
+        microcontroller_status: false
+      };
+
+      function updateData() {
+        $('#AirConditionerTemp').text(data.air_conditioner_temp);
+        $('#CCTVTemp').text(data.cctv_avg_temp);
+        $('#tcp-toggle').prop('checked', data.tcp_status);
+        $('#microcontroller-toggle').prop('checked', data.microcontroller_status);
+      }
+
+      updateData(); // Initial data update
+
+      $('#tcp-toggle').change(function() {
+        const status = $(this).is(':checked');
+        data.tcp_status = status;
+      });
+
+      $('#microcontroller-toggle').change(function() {
+        const status = $(this).is(':checked');
+        data.microcontroller_status = status;
+      });
+
+      $('.up-button').click(function() {
+        adjustTemperature(1);
+      });
+
+      $('.down-button').click(function() {
+        adjustTemperature(-1);
+      });
+
+      function adjustTemperature(change) {
+        let currentTemp = data.air_conditioner_temp;
+        let newTemp = currentTemp + change;
+        data.air_conditioner_temp = newTemp;
+        $('#AirConditionerTemp').text(newTemp);
+      }
+
+      function updateDateTime() {
+        const now = new Date();
+        const formattedDateTime = now.toLocaleString('en-US', {
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+          hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true
+        });
+        $('#datetime').text(formattedDateTime);
+      }
+      setInterval(updateDateTime, 1000);
+    });
+  </script>
 </head>
 <body>
   <header>
@@ -12,29 +68,37 @@
     <p id="datetime"></p>
   </header>
 
-  <script>
-    function updateDateTime() {
-      const now = new Date();
-      const formattedDateTime = now.toLocaleString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
-      document.getElementById('datetime').textContent = formattedDateTime;
-    }
-    setInterval(updateDateTime, 1000);
-  </script>
-
-  <main>
+  <main class="main">
     <div class="video-container">
-      <img src="{{ url_for('video_feed') }}" width="800">
+      <img src="video_feed" width="800">
     </div>
-
-    <div class="temperature-container">
-      <section class="air-conditioner">
+    <div class="row">
+      <div class="card">
+        <h2>TCP</h2>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tcp-toggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="card">
         <h2>Air Conditioner Temperature</h2>
-        <p>18°c</p>
-      </section>
-      <section class="average-temperature">
+        <div id="air-conditioner" class="temperature-control">
+          <button class="control-button up-button">&#9650;</button>
+          <p><span id="AirConditionerTemp">24</span>°C</p>
+          <button class="control-button down-button">&#9660;</button>
+        </div>
+      </div>
+      <div class="card">
         <h2>CCTV Average Temperature</h2>
-        <p>19°c</p>
-      </section>
+        <p><span id="CCTVTemp">35</span>°C</p>
+      </div>
+      <div class="card">
+        <h2>Microcontroller</h2>
+        <label class="toggle-switch">
+          <input type="checkbox" id="microcontroller-toggle">
+          <span class="slider"></span>
+        </label>
+      </div>
     </div>
   </main>
 </body>
