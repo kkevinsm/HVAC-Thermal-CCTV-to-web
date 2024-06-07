@@ -8,7 +8,7 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
     $(document).ready(function() {
-      // Simulated data for static HTML
+
       const data = {
         air_conditioner_temp: 24,
         cctv_avg_temp: 35,
@@ -46,8 +46,13 @@
       function adjustTemperature(change) {
         let currentTemp = data.air_conditioner_temp;
         let newTemp = currentTemp + change;
-        data.air_conditioner_temp = newTemp;
-        $('#AirConditionerTemp').text(newTemp);
+
+        if (newTemp >= 16 && newTemp <= 30) {
+          data.air_conditioner_temp = newTemp;
+          $('#AirConditionerTemp').text(newTemp);
+        } else {
+          alert('Temperature must be between 16°C and 30°C.');
+        }
       }
 
       function updateDateTime() {
@@ -93,7 +98,7 @@
         <p><span id="CCTVTemp">35</span>°C</p>
       </div>
       <div class="card">
-        <h2>Microcontroller</h2>
+        <h2>Micro Controller</h2>
         <label class="toggle-switch">
           <input type="checkbox" id="microcontroller-toggle">
           <span class="slider"></span>
