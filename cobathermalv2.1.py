@@ -1,8 +1,12 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, jsonify
 import cv2
 import numpy as np
+import threading
 
 app = Flask(__name__)
+
+average_temperature = 0
+lock = threading.Lock()
 
 def get_temperature_value(color_name):
     temperature_values = {
@@ -17,8 +21,7 @@ def get_temperature_value(color_name):
 def calculate_average_temperature(temperature_list):
     if not temperature_list:
         return 0
-    total_sum = sum(temperature_list)
-    return total_sum / len(temperature_list)
+    return np.mean(temperature_list)
 
 def detect_and_label_temperature(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -48,15 +51,17 @@ def detect_and_label_temperature(frame):
                 x, y, w, h = cv2.boundingRect(contour)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 temperature_range = get_temperature_value(color_name)
-                average_temperature = sum(temperature_range) / 2
+                average_temperature = np.mean(temperature_range)
                 temperature_values.append(average_temperature)
-                temperature_label = f"{average_temperature:.1f} c"
+                temperature_label = f"{average_temperature:.1f} C"
                 cv2.putText(frame, temperature_label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (36, 255, 12), 2)
 
     return frame, temperature_values
 
 def generate_frames():
-    cap = cv2.VideoCapture('D:\Code\HVAC-Thermal-CCTV-to-web\src\ThermalExperiment.mp4')
+    global average_temperature
+
+    cap = cv2.VideoCapture('D:\\Code\\HVAC-Thermal-CCTV-to-web\\src\\ThermalExperiment.mp4')
     all_temperatures = []
 
     while True:
@@ -67,8 +72,10 @@ def generate_frames():
             labeled_frame, frame_temperatures = detect_and_label_temperature(frame)
             all_temperatures.extend(frame_temperatures)
 
-            average_temperature = calculate_average_temperature(all_temperatures)
-            cv2.putText(labeled_frame, f"Average Temp: {average_temperature:.1f} c", (10, frame.shape[0] - 10),
+            with lock:
+                average_temperature = calculate_average_temperature(all_temperatures)
+
+            cv2.putText(labeled_frame, f"Average Temp: {average_temperature:.1f} C", (10, frame.shape[0] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
 
             ret, buffer = cv2.imencode('.jpg', labeled_frame)
@@ -83,6 +90,12 @@ def index():
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/average_temperature')
+def get_average_temperature():
+    global average_temperature
+    with lock:
+        return jsonify({'average_temperature': average_temperature})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5005)

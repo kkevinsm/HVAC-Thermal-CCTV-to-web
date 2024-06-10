@@ -64,6 +64,14 @@
         $('#datetime').text(formattedDateTime);
       }
       setInterval(updateDateTime, 1000);
+
+      function updateAverageTemperature() {
+        $.getJSON('/average_temperature', function(data) {
+          $('#CCTVTemp').text(data.average_temperature.toFixed(1));
+        });
+      }
+
+      setInterval(updateAverageTemperature, 5000); // Update every 5 seconds
     });
   </script>
 </head>
