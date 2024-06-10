@@ -2,11 +2,13 @@ from flask import Flask, render_template, Response, jsonify
 import cv2
 import numpy as np
 import threading
+import time
 
 app = Flask(__name__)
 
 average_temperature = 0
 lock = threading.Lock()
+
 
 def get_temperature_value(color_name):
     temperature_values = {
@@ -18,10 +20,12 @@ def get_temperature_value(color_name):
     }
     return temperature_values.get(color_name, (0, 0))
 
+
 def calculate_average_temperature(temperature_list):
     if not temperature_list:
         return 0
     return np.mean(temperature_list)
+
 
 def detect_and_label_temperature(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -58,13 +62,18 @@ def detect_and_label_temperature(frame):
 
     return frame, temperature_values
 
+
 def generate_frames():
     global average_temperature
 
     cap = cv2.VideoCapture('D:\\Code\\HVAC-Thermal-CCTV-to-web\\src\\ThermalExperiment.mp4')
     all_temperatures = []
 
+    fps = 0.0
+
     while True:
+        start_time = time.time()
+
         success, frame = cap.read()
         if not success:
             break
@@ -75,27 +84,41 @@ def generate_frames():
             with lock:
                 average_temperature = calculate_average_temperature(all_temperatures)
 
-            cv2.putText(labeled_frame, f"Average Temp: {average_temperature:.1f} C", (10, frame.shape[0] - 10),
+            text = f"Average Temp : {average_temperature:.1f} C"
+            fps_text = f"FPS : {fps:.2f}"
+
+            cv2.putText(labeled_frame, fps_text, (10, frame.shape[0] - 40),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+
+            cv2.putText(labeled_frame, text, (10, frame.shape[0] - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+
+            end_time = time.time()
+            processing_time = end_time - start_time
+            fps = 1 / processing_time
 
             ret, buffer = cv2.imencode('.jpg', labeled_frame)
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
+
 @app.route('/')
 def index():
     return render_template('bukanindex.html')
 
+
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 @app.route('/average_temperature')
 def get_average_temperature():
     global average_temperature
     with lock:
         return jsonify({'average_temperature': average_temperature})
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5005)

@@ -12,16 +12,18 @@
     <script>
       $(document).ready(function () {
 
+        let tcpStatus = localStorage.getItem("tcpStatus") === "true";
+        let microcontrollerStatus = localStorage.getItem("microcontrollerStatus") === "true";
+
         let currentTemp = localStorage.getItem("airConditionerTemp")
           ? parseInt(localStorage.getItem("airConditionerTemp"))
           : 16;
         $("#AirConditionerTemp").text(currentTemp + "°C");
 
-
         const data = {
           cctv_avg_temp: 35,
-          tcp_status: true,
-          microcontroller_status: false,
+          tcp_status: tcpStatus,
+          microcontroller_status: microcontrollerStatus,
         };
 
         function updateData() {
@@ -33,16 +35,18 @@
           );
         }
 
-        updateData(); // Initial data update
+        updateData();
 
         $("#tcp-toggle").change(function () {
           const status = $(this).is(":checked");
           data.tcp_status = status;
+          localStorage.setItem("tcpStatus", status);
         });
 
         $("#microcontroller-toggle").change(function () {
           const status = $(this).is(":checked");
           data.microcontroller_status = status;
+          localStorage.setItem("microcontrollerStatus", status);
         });
 
         $(".up-button").click(function () {
@@ -86,7 +90,7 @@
           });
         }
 
-        setInterval(updateAverageTemperature, 5000); // Update every 5 seconds
+        setInterval(updateAverageTemperature, 500);
       });
     </script>
   </head>
@@ -104,7 +108,8 @@
         <div class="card">
           <h2>TCP</h2>
           <label class="toggle-switch">
-            <input type="checkbox" id="tcp-toggle" />
+
+            <input type="checkbox" id="tcp-toggle" checked />
             <span class="slider"></span>
           </label>
         </div>
@@ -123,7 +128,8 @@
         <div class="card">
           <h2>Microcontroller</h2>
           <label class="toggle-switch">
-            <input type="checkbox" id="microcontroller-toggle" />
+
+            <input type="checkbox" id="microcontroller-toggle" checked />
             <span class="slider"></span>
           </label>
         </div>

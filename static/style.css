@@ -45,9 +45,10 @@ header p {
 
 .video-container {
   width: 100%;
-  max-width: 1000px; /* Set max-width to match the image width */
+  max-width: 1000px;
   text-align: center;
   margin-top: 0;
+  margin-bottom: 10px; /* Tambahkan margin bawah untuk memberi jarak */
 }
 
 .video-container img {
@@ -62,6 +63,7 @@ header p {
   width: 100%;
   max-width: 1000px; /* Set max-width to match the image width */
   gap: 1em;
+  margin-top: 5px; /* Tambahkan margin atas untuk memberikan sedikit jarak */
 }
 
 .card {
