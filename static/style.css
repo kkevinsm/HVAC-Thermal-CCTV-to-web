@@ -4,48 +4,74 @@ body {
   color: #333;
   margin: 0;
   padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: hidden;
 }
 
 header {
   background-color: #404850;
   color: white;
-  padding: 1em 0;
-  text-align: center;
+  padding: 0.5em 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 header h1 {
   margin: 0;
+  text-align: left;
+  font-size: 1.5em;
+}
+
+header p {
+  margin: 0;
+  font-size: 1em;
 }
 
 .main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2em;
+  padding: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.video-container {
+  width: 100%;
+  max-width: 1000px; /* Set max-width to match the image width */
+  text-align: center;
+  margin-top: 0;
 }
 
 .video-container img {
   max-width: 100%;
   height: auto;
   border-radius: 10px;
-  margin-bottom: 2em;
 }
 
 .row {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  max-width: 1200px;
-  gap: 2em;
+  max-width: 1000px; /* Set max-width to match the image width */
+  gap: 1em;
 }
 
 .card {
   background-color: white;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  padding: 2em;
+  padding: 0.5em;
   text-align: center;
   flex: 1;
+  font-size: 0.8em;
 }
 
 .temperature-control {
@@ -58,7 +84,7 @@ header h1 {
 .control-button {
   background: none;
   border: none;
-  font-size: 1.5em;
+  font-size: 1.2em;
   cursor: pointer;
   color: #404850;
 }
@@ -66,8 +92,8 @@ header h1 {
 .toggle-switch {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 50px;
+  height: 28px;
 }
 
 .toggle-switch input {
@@ -85,14 +111,14 @@ header h1 {
   bottom: 0;
   background-color: #ccc;
   transition: .4s;
-  border-radius: 34px;
+  border-radius: 28px;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 26px;
-  width: 26px;
+  height: 20px;
+  width: 20px;
   left: 4px;
   bottom: 4px;
   background-color: white;
@@ -105,5 +131,20 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-  transform: translateX(26px);
+  transform: translateX(22px);
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    text-align: center;
+  }
+  .row {
+    flex-direction: column;
+    align-items: center;
+  }
+  .card {
+    margin-bottom: 1em;
+    width: 100%;
+  }
 }
