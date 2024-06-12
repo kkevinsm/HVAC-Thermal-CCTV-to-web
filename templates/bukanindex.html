@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CCTV Thermal HVAC Monitoring</title>
     <link
@@ -11,43 +11,17 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
       $(document).ready(function () {
-        let tcpStatus = localStorage.getItem("tcpStatus") === "true";
-        let microcontrollerStatus =
-          localStorage.getItem("microcontrollerStatus") === "true";
-
-        let currentTemp = localStorage.getItem("airConditionerTemp")
-          ? parseInt(localStorage.getItem("airConditionerTemp"))
-          : 16;
-        $("#AirConditionerTemp").text(currentTemp + "°C");
-
-        const data = {
-          cctv_avg_temp: 35,
-          tcp_status: tcpStatus,
-          microcontroller_status: microcontrollerStatus,
-        };
-
-        function updateData() {
-          $("#CCTVTemp").text(data.cctv_avg_temp);
-          $("#tcp-toggle").prop("checked", data.tcp_status);
-          $("#microcontroller-toggle").prop(
-            "checked",
-            data.microcontroller_status
-          );
+        function fetchData() {
+          $.getJSON("fetch_data.php", function (data) {
+            $("#AirConditionerTemp").text(data.SuhuAC + "°C");
+            $("#CCTVTemp").text(data.RataSuhuAC + "°C");
+            $("#tcp-toggle").prop("checked", data.TCP == 1);
+            $("#microcontroller-toggle").prop("checked", data.Microcontroller == 1);
+          });
         }
 
-        updateData();
-
-        $("#tcp-toggle").change(function () {
-          const status = $(this).is(":checked");
-          data.tcp_status = status;
-          localStorage.setItem("tcpStatus", status);
-        });
-
-        $("#microcontroller-toggle").change(function () {
-          const status = $(this).is(":checked");
-          data.microcontroller_status = status;
-          localStorage.setItem("microcontrollerStatus", status);
-        });
+        fetchData(); // Initial data fetch
+        setInterval(fetchData, 5000); // Update every 5 seconds
 
         $(".up-button").click(function () {
           adjustTemperature(1);
@@ -58,14 +32,20 @@
         });
 
         function adjustTemperature(change) {
+          let currentTemp = parseInt($("#AirConditionerTemp").text());
           let newTemp = currentTemp + change;
           if (newTemp >= 16 && newTemp <= 30) {
-            currentTemp = newTemp;
-            localStorage.setItem("airConditionerTemp", currentTemp);
-            $("#AirConditionerTemp").text(currentTemp + "°C");
+            $("#AirConditionerTemp").text(newTemp + "°C");
+            updateDatabase(newTemp);
           } else {
             alert("Temperature must be between 16°C and 30°C.");
           }
+        }
+
+        function updateDatabase(temp) {
+          $.post("update_temperature.php", { SuhuAC: temp }, function (response) {
+            console.log(response);
+          });
         }
 
         function updateDateTime() {
@@ -82,21 +62,14 @@
           });
           $("#datetime").text(formattedDateTime);
         }
+
         setInterval(updateDateTime, 1000);
-
-        function updateAverageTemperature() {
-          $.getJSON("/average_temperature", function (data) {
-            $("#CCTVTemp").text(data.average_temperature.toFixed(1));
-          });
-        }
-
-        setInterval(updateAverageTemperature, 500);
       });
     </script>
   </head>
   <body>
     <header>
-      <h1>CCTV Thermal HVAC</h1>
+      <h1>Monitoring CCTV Thermal HVAC</h1>
       <p id="datetime"></p>
     </header>
 
@@ -108,7 +81,7 @@
         <div class="card">
           <h2>TCP</h2>
           <label class="toggle-switch">
-            <input type="checkbox" id="tcp-toggle" checked />
+            <input type="checkbox" id="tcp-toggle" />
             <span class="slider"></span>
           </label>
         </div>
@@ -127,7 +100,7 @@
         <div class="card">
           <h2>Microcontroller</h2>
           <label class="toggle-switch">
-            <input type="checkbox" id="microcontroller-toggle" checked />
+            <input type="checkbox" id="microcontroller-toggle" />
             <span class="slider"></span>
           </label>
         </div>
