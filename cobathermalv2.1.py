@@ -11,10 +11,10 @@ lock = threading.Lock()
 
 def get_temperature_value(color_name):
     temperature_values = {
-        'Red': (35, 45),
-        'Orange': (25, 34),
-        'Yellow': (15, 24),
-        'Green': (6, 14),
+        'Red': (36, 45),
+        'Orange': (26, 35),
+        'Yellow': (16, 25),
+        'Green': (6, 15),
         'Blue': (0, 5)
     }
     return temperature_values.get(color_name, (0, 0))
