@@ -19,20 +19,20 @@ const int buzzer = 14;      // BUZZER REMOTE BOX
 #define SPI_CS 5
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-IPAddress ip(172, 20, 10, 12);
-IPAddress myDns(172, 20, 10, 1);
-IPAddress gateway(172, 20, 10, 1);
-IPAddress subnet(255, 255, 255, 240);
+IPAddress ip(10, 210, 80, 35);
+IPAddress myDns(118, 98, 44, 10);
+IPAddress gateway(10, 210, 64, 1);
+IPAddress subnet(255, 255, 192, 0);
 
 // Server URL
-const char* serverUrl = "http://172.20.10.12:5005"; // Ganti dengan IP server Flask
+const char* serverUrl = "http://127.0.0.1:5000"; // Ganti dengan IP server Flask
 
 EthernetClient client;
 
 // Function to connect to server
 void connectToServer() { 
   Serial.println("Menghubungkan ke server...");
-  if (client.connect(IPAddress(172, 20, 10, 12), 5005)) { // IP server tujuan
+  if (client.connect(IPAddress(127, 0, 0, 1), 5000)) { // IP server tujuan
     Serial.println("Terhubung ke server");
   } else {
     Serial.println("Gagal terhubung ke server");

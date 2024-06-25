@@ -7,7 +7,7 @@
 const int buttonWIND  = 27; // WIND/BLOWER
 const int buttonMINUS = 26; // MINUS THERMAL
 const int buttonPLUS = 25;  // PLUS THERMAL
-const int buttonONOFF = 33; // ON/OFF REMOTE
+const int buttonONOFF = 33; // ON/OFF REMOTE  
 const int ledPin = 2;       // LED ESP32
 const int ledBox = 12;      // LED BOX UNIVERSAL REMOTE
 const int buzzer = 14;      // BUZZER REMOTE BOX
@@ -19,20 +19,20 @@ const int buzzer = 14;      // BUZZER REMOTE BOX
 #define SPI_CS 5
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-IPAddress ip(192, 168, 1, 177);
-IPAddress myDns(192, 168, 1, 1);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 255, 0);
+IPAddress ip(172, 20, 10, 12);
+IPAddress myDns(172, 20, 10, 1);
+IPAddress gateway(172, 20, 10, 1);
+IPAddress subnet(255, 255, 255, 240);
 
 // Server URL
-const char* serverUrl = "http://192.168.1.177:5005/send_temperature"; // Ganti dengan IP server Flask
+const char* serverUrl = "http://172.20.10.12:5005"; // Ganti dengan IP server Flask
 
 EthernetClient client;
 
 // Function to connect to server
 void connectToServer() { 
   Serial.println("Menghubungkan ke server...");
-  if (client.connect(IPAddress(192, 168, 1, 100), 8899)) { // IP server tujuan
+  if (client.connect(IPAddress(172, 20, 10, 12), 5005)) { // IP server tujuan
     Serial.println("Terhubung ke server");
   } else {
     Serial.println("Gagal terhubung ke server");
@@ -51,6 +51,8 @@ void receivePeopleCount() {
       // Kirimkan konfirmasi ke server
       client.print("jon");
     }
+    } else {
+    Serial.println("Tidak ada data tersedia dari server.");
   }
 }
 
