@@ -42,7 +42,7 @@ def detect_and_label_temperature(frame):
 
     return frame
 
-cap = cv2.VideoCapture('/Users/devaraya/Documents/thermalvideocctv/src/ThermalExperiment2.mp4')
+cap = cv2.VideoCapture('D:\Code\HVAC-Thermal-CCTV-to-web\src\ThermalExperiment.mp4')
 
 frame_width = int(cap.get(3))
 frame_height = int(cap.get(4))

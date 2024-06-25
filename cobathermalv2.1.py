@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, jsonify
+from flask import Flask, render_template, Response, jsonify, request
 import cv2
 import numpy as np
 import threading
@@ -115,7 +115,14 @@ def get_average_temperature():
     global average_temperature
     with lock:
         return jsonify({'average_temperature': average_temperature})
+    
+@app.route('/send_temperature', methods=['GET'])
+def send_temperature():
+    global average_temperature
+    with lock:
+        temp = average_temperature
+    return jsonify({'temperature': temp})
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5005)
+    app.run(debug=True, host='0.0.0.0', port=5005)

@@ -1,7 +1,9 @@
 #include <Arduino.h>
 #include <Ethernet.h>
 #include <SPI.h>
+#include <HTTPClient.h>
 
+// Pin definitions
 const int buttonWIND  = 27; // WIND/BLOWER
 const int buttonMINUS = 26; // MINUS THERMAL
 const int buttonPLUS = 25;  // PLUS THERMAL
@@ -10,28 +12,27 @@ const int ledPin = 2;       // LED ESP32
 const int ledBox = 12;      // LED BOX UNIVERSAL REMOTE
 const int buzzer = 14;      // BUZZER REMOTE BOX
 
-//------------ SETUP PIN W5500 ------------
+// Ethernet setup
 #define SPI_MISO 19
 #define SPI_MOSI 23
 #define SPI_SCK 18
 #define SPI_CS 5
 
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; // DEFAULT MAC ADDRESS
-
-// Network configuration
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 IPAddress ip(192, 168, 1, 177);
 IPAddress myDns(192, 168, 1, 1);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-EthernetClient client;
+// Server URL
+const char* serverUrl = "http://192.168.1.177:5005/send_temperature"; // Ganti dengan IP server Flask
 
-// --------- FUNCTION PROCESS PROGRAM ------------- 
+EthernetClient client;
 
 // Function to connect to server
 void connectToServer() { 
   Serial.println("Menghubungkan ke server...");
-  if (client.connect(IPAddress(192, 168, 1, 100), 8899)) { // IP ETHERNET W5500 
+  if (client.connect(IPAddress(192, 168, 1, 100), 8899)) { // IP server tujuan
     Serial.println("Terhubung ke server");
   } else {
     Serial.println("Gagal terhubung ke server");
@@ -54,17 +55,17 @@ void receivePeopleCount() {
 }
 
 // Function to blink the LED on the ESP32
-void blinkLed(){
+void blinkLed() {
   for (int i = 0; i < 10; i++) {
     digitalWrite(ledPin, HIGH);
     delay(100);
-    digitalWrite(ledPin, HIGH);
+    digitalWrite(ledPin, LOW);
     delay(100);  
   }
 }
 
-// Function to control the LED from the server (NOT USE IN THE MAIN LOOP)
-void serverLed(){
+// Function to control the LED from the server (NOT USED IN MAIN LOOP)
+void serverLed() {
   if (client.connected()) {
     if (client.available()) {
       String message = client.readStringUntil('\n');
@@ -81,28 +82,43 @@ void serverLed(){
     for(int k = 0; k < 10; k++) {
       digitalWrite(ledPin, HIGH);
       delay(100);
-      digitalWrite(ledPin, HIGH);
+      digitalWrite(ledPin, LOW);
       delay(100);
     }
   }
 }
 
-// --------- SETUP PIN AND COMMUNICATION TESTING-------------
+// Function to receive temperature data from Flask server
+void receiveTemperature() {
+  HTTPClient http;
+  http.begin(serverUrl);
+  int httpCode = http.GET();
 
-void setup() {
-  // LED pin mode
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, HIGH);
+  if (httpCode > 0) {
+    String payload = http.getString();
+    Serial.println("Temperature data: " + payload);
+  } else {
+    Serial.println("Gagal menerima data suhu");
+  }
   
-  //Box Indicator
+  http.end();
+}
+
+// Setup function
+void setup() {
+  // Initialize pin modes
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
   pinMode(buzzer, OUTPUT);
   pinMode(ledBox, OUTPUT);
 
-  Serial.begin(115200);  // Setting baud rate
-  SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI, SPI_CS); // Initialize SPI
-  
-  pinMode(SPI_CS, OUTPUT); // Setting CS pin
-  digitalWrite(SPI_CS, HIGH); // Test CS
+  // Initialize serial communication
+  Serial.begin(115200);
+  SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI, SPI_CS);
+
+  // Initialize Ethernet
+  pinMode(SPI_CS, OUTPUT);
+  digitalWrite(SPI_CS, HIGH);
 
   Ethernet.init(SPI_CS);
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
@@ -111,28 +127,24 @@ void setup() {
   Serial.print("Alamat IP saya: ");
   Serial.println(Ethernet.localIP());
 
-  if (Ethernet.localIP() == IPAddress(0, 0, 0, 0)) { // Check for successful configuration
+  if (Ethernet.localIP() == IPAddress(0, 0, 0, 0)) {
     Serial.println("Gagal mengkonfigurasi Ethernet");
-    while (true); // Stop execution if Ethernet configuration fails
+    while (true);
   }
 
-  
-  // Button pin mode
-  // pinMode(buttonONOFF, OUTPUT);
-  // pinMode(buttonPLUS, OUTPUT);
-  // pinMode(buttonMINUS, OUTPUT);
-  // pinMode(buttonWIND, OUTPUT);
-
-  connectToServer(); // Connect to server during setup
+  connectToServer();
 }
 
-// ----------- MAIN PROGRAM -----------------------
-
+// Main loop function
 void loop() {
   if (client.connected()) {
-    receivePeopleCount();   // Receive data from server
+    receivePeopleCount();
   } else {
-    connectToServer();      // Reconnect to server if disconnected
+    connectToServer();
   }
-  delay(1000);               // Delay main loop program by 1 second
+  
+  // Request temperature data from Flask server
+  receiveTemperature();
+
+  delay(10000); // Request temperature data every 10 seconds
 }
